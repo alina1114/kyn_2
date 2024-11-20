@@ -48,6 +48,8 @@ dependencies:
   shared_preferences: ^2.3.3
   cached_network_image: ^3.3.1
   google_fonts: ^6.2.1
+  dotted_border: ^2.1.0
+  any_link_preview: ^3.0.2
 
 dev_dependencies:
   flutter_test:

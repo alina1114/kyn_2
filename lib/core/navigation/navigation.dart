@@ -3,11 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kyn_2/features/auth/controller/auth_controller.dart';
 import 'package:kyn_2/core/theme/theme.dart';
 import 'package:kyn_2/features/settings/screens/settings_screen.dart';
-//import 'package:socialapp/feature/academics/screens/academic_screen.dart';
-
-//import 'package:socialapp/feature/news/screen/news_page.dart';
-//import 'package:socialapp/feature/settings/screens/settings_screen.dart';
-//import 'package:socialapp/feature/whatshot/home/screens/home_screen_hot.dart';
+import 'package:kyn_2/features/whatshot/home/screens/home_screen_hot.dart';
 
 class Navigation extends ConsumerStatefulWidget {
   static route() => MaterialPageRoute(
@@ -70,7 +66,7 @@ class _NavigationState extends ConsumerState<Navigation> {
       body: IndexedStack(
         index: currentPageIndex,
         children: const [
-          //  WhatshotHomeScreen(),
+          WhatshotHomeScreen(),
           //   NewsPage(),
           //  AcademicsPage(),
           SettingsPage(),
