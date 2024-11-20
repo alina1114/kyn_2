@@ -1,0 +1,5 @@
+package com.example.kyn_2
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
