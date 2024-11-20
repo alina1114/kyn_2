@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "85534182907",
+    "project_id": "ikyn-1326b",
+    "storage_bucket": "ikyn-1326b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:85534182907:android:bbcbd2df6d9425b84b8f5e",
+        "android_client_info": {
+          "package_name": "com.example.kyn_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8PkDyPtFTTCFtA0FpLwQEzc6mm2--yb8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
