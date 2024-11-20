@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kyn_2/features/auth/controller/auth_controller.dart';
 import 'package:kyn_2/core/theme/theme.dart';
+import 'package:kyn_2/features/explore/home_screen.dart';
+import 'package:kyn_2/features/maps/map_screen.dart';
 import 'package:kyn_2/features/settings/screens/settings_screen.dart';
-import 'package:kyn_2/features/whatshot/home/screens/home_screen_hot.dart';
+import 'package:kyn_2/features/events/home/screens/home_screen_hot.dart';
 
 class Navigation extends ConsumerStatefulWidget {
   static route() => MaterialPageRoute(
@@ -42,19 +44,19 @@ class _NavigationState extends ConsumerState<Navigation> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.whatshot),
-            icon: Icon(Icons.whatshot_outlined),
-            label: 'What\'s Hot',
+            selectedIcon: Icon(Icons.explore),
+            icon: Icon(Icons.explore_outlined),
+            label: 'Explore',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.newspaper),
-            icon: Icon(Icons.newspaper_outlined),
-            label: 'News',
+            selectedIcon: Icon(Icons.event_available_rounded),
+            icon: Icon(Icons.event),
+            label: 'Posts',
           ),
           NavigationDestination(
-            selectedIcon: Icon(Icons.school),
-            icon: Icon(Icons.school_outlined),
-            label: 'Academics',
+            selectedIcon: Icon(Icons.map_sharp),
+            icon: Icon(Icons.map_outlined),
+            label: 'Maps',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.settings),
@@ -65,11 +67,11 @@ class _NavigationState extends ConsumerState<Navigation> {
       ),
       body: IndexedStack(
         index: currentPageIndex,
-        children: const [
-          WhatshotHomeScreen(),
-          //   NewsPage(),
-          //  AcademicsPage(),
-          SettingsPage(),
+        children: [
+          const HomePage(),
+          const WhatshotHomeScreen(),
+          MapPage(),
+          const SettingsPage(),
         ],
       ),
     );

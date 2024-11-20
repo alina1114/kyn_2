@@ -1,19 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+
+enum Category {
+  Emergency,
+  Event,
+  Business,
+}
 
 class Post {
   final String id;
   final String title;
   final String? link;
   final String? description;
-
   final List<String> upvotes;
   final List<String> downvotes;
   final int commentCount;
   final String username;
   final String uid;
-
   final DateTime createdAt;
-  final List<String> awards;
+  final Category category;
 
   Post({
     required this.id,
@@ -26,7 +31,7 @@ class Post {
     required this.username,
     required this.uid,
     required this.createdAt,
-    required this.awards,
+    required this.category,
   });
 
   Post copyWith({
@@ -40,7 +45,7 @@ class Post {
     String? username,
     String? uid,
     DateTime? createdAt,
-    List<String>? awards,
+    Category? category,
   }) {
     return Post(
       id: id ?? this.id,
@@ -53,7 +58,7 @@ class Post {
       username: username ?? this.username,
       uid: uid ?? this.uid,
       createdAt: createdAt ?? this.createdAt,
-      awards: awards ?? this.awards,
+      category: category ?? this.category,
     );
   }
 
@@ -69,8 +74,40 @@ class Post {
       'username': username,
       'uid': uid,
       'createdAt': createdAt.millisecondsSinceEpoch,
-      'awards': awards,
+      'category': category.name, // Convert enum to string
     };
+  }
+
+  factory Post.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+
+    var createdAtData = data['createdAt'];
+    DateTime createdAt;
+
+    if (createdAtData is Timestamp) {
+      createdAt = createdAtData.toDate();
+    } else if (createdAtData is int) {
+      createdAt = DateTime.fromMillisecondsSinceEpoch(createdAtData);
+    } else {
+      createdAt = DateTime.now();
+    }
+
+    return Post(
+      id: doc.id,
+      title: data['title'] ?? '',
+      link: data['link'],
+      description: data['description'],
+      upvotes: List<String>.from(data['upvotes'] ?? []),
+      downvotes: List<String>.from(data['downvotes'] ?? []),
+      commentCount: data['commentCount']?.toInt() ?? 0,
+      username: data['username'] ?? '',
+      uid: data['uid'] ?? '',
+      createdAt: createdAt,
+      category: Category.values.firstWhere(
+        (e) => e.name == data['category'],
+        orElse: () => Category.Event, // Default category
+      ),
+    );
   }
 
   factory Post.fromMap(Map<String, dynamic> map) {
@@ -85,13 +122,16 @@ class Post {
       username: map['username'] ?? '',
       uid: map['uid'] ?? '',
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
-      awards: List<String>.from(map['awards']),
+      category: Category.values.firstWhere(
+        (e) => e.name == map['category'],
+        orElse: () => Category.Event, // Default category
+      ),
     );
   }
 
   @override
   String toString() {
-    return 'Post(id: $id, title: $title, link: $link, description: $description, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, createdAt: $createdAt, awards: $awards)';
+    return 'Post(id: $id, title: $title, link: $link, description: $description, upvotes: $upvotes, downvotes: $downvotes, commentCount: $commentCount, username: $username, uid: $uid, createdAt: $createdAt, category: $category)';
   }
 
   @override
@@ -109,7 +149,7 @@ class Post {
         other.username == username &&
         other.uid == uid &&
         other.createdAt == createdAt &&
-        listEquals(other.awards, awards);
+        other.category == category;
   }
 
   @override
@@ -124,6 +164,6 @@ class Post {
         username.hashCode ^
         uid.hashCode ^
         createdAt.hashCode ^
-        awards.hashCode;
+        category.hashCode;
   }
 }
