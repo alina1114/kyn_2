@@ -49,7 +49,7 @@ class SearchCommunityDelegate extends SearchDelegate {
         return queryResult.when(
             data: (communities) {
               if (communities.isEmpty) {
-                return const Center(child: Text('No communities found.'));
+                return const Center(child: Text('No events found.'));
               }
               return ListView.builder(
                 itemCount: communities.length,

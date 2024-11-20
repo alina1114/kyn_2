@@ -12,13 +12,11 @@ import 'package:kyn_2/features/whatshot/post/controller/post_controller.dart';
 import 'package:kyn_2/models/community_model.dart';
 
 class AddPostTypeScreen extends ConsumerStatefulWidget {
-  static Route<dynamic> route(String type) => MaterialPageRoute(
-        builder: (context) => AddPostTypeScreen(type: type),
+  static Route<dynamic> route() => MaterialPageRoute(
+        builder: (context) => const AddPostTypeScreen(),
       );
-  final String type;
   const AddPostTypeScreen({
     super.key,
-    required this.type,
   });
 
   @override
@@ -54,47 +52,30 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
   }
 
   void sharePost() {
-    if (widget.type == 'image' &&
-        (bannerFile != null) &&
-        titleController.text.isNotEmpty) {
-      ref.read(postControllerProvider.notifier).shareImagePost(
-            context: context,
-            title: titleController.text.trim(),
-            selectedCommunity: selectedCommunity ?? communities[0],
-            file: bannerFile,
-          );
-    } else if (widget.type == 'text' && titleController.text.isNotEmpty) {
-      ref.read(postControllerProvider.notifier).shareTextPost(
-            context: context,
-            title: titleController.text.trim(),
-            selectedCommunity: selectedCommunity ?? communities[0],
-            description: descriptionController.text.trim(),
-          );
-    } else if (widget.type == 'link' &&
-        titleController.text.isNotEmpty &&
-        linkController.text.isNotEmpty) {
-      ref.read(postControllerProvider.notifier).shareLinkPost(
-            context: context,
-            title: titleController.text.trim(),
-            selectedCommunity: selectedCommunity ?? communities[0],
-            link: linkController.text.trim(),
-          );
-    } else {
-      showSnackBar(context, 'Please enter all the fields');
+    final title = titleController.text.trim();
+    final description = descriptionController.text.trim();
+
+    if (title.isEmpty) {
+      showSnackBar(context, 'Please enter the title');
+      return;
     }
+
+    ref.read(postControllerProvider.notifier).sharePost(
+          context: context,
+          title: title,
+          description: description,
+          file: bannerFile,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isTypeImage = widget.type == 'image';
-    final isTypeText = widget.type == 'text';
-    final isTypeLink = widget.type == 'link';
     // final currentTheme = ref.watch(themeNotifierProvider);
     final isLoading = ref.watch(postControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Post ${widget.type}'),
+        title: const Text('Create Post'),
         actions: [
           TextButton(
             onPressed: sharePost,
@@ -107,7 +88,7 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
               color: Colors.red,
             )
           : Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   TextField(
@@ -121,91 +102,45 @@ class _AddPostTypeScreenState extends ConsumerState<AddPostTypeScreen> {
                     maxLength: 30,
                   ),
                   const SizedBox(height: 10),
-                  if (isTypeImage)
-                    GestureDetector(
-                      onTap: selectBannerImage,
-                      child: DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(10),
-                        dashPattern: const [10, 4],
-                        strokeCap: StrokeCap.round,
-                        color: AppPallete.borderColor,
-                        child: Container(
-                          width: double.infinity,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: bannerFile != null
-                              ? Image.file(bannerFile!)
-                              : const Center(
-                                  child: Icon(
-                                    Icons.camera_alt_outlined,
-                                    size: 40,
-                                  ),
-                                ),
-                        ),
-                      ),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      hintText: 'Enter description here',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(18),
                     ),
-                  if (isTypeText)
-                    TextField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                        filled: true,
-                        hintText: 'Enter Description here',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(18),
-                      ),
-                      maxLines: 5,
-                    ),
-                  if (isTypeLink)
-                    TextField(
-                      controller: linkController,
-                      decoration: const InputDecoration(
-                        filled: true,
-                        hintText: 'Enter link here',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(18),
-                      ),
-                    ),
-                  const SizedBox(height: 20),
-                  const Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      'Select Community',
-                    ),
+                    maxLength: 150,
                   ),
-                  ref.watch(userCommunitiesProvider).when(
-                      data: (data) {
-                        communities = data;
-
-                        if (data.isEmpty) {
-                          return const SizedBox();
-                        }
-
-                        return DropdownButton(
-                          value: selectedCommunity ?? data[0],
-                          items: data
-                              .map(
-                                (e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.name),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: selectBannerImage,
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      radius: const Radius.circular(10),
+                      dashPattern: const [10, 4],
+                      strokeCap: StrokeCap.round,
+                      color: AppPallete.borderColor,
+                      child: Container(
+                        width: double.infinity,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: bannerFile == null
+                            ? const Center(
+                                child: Icon(
+                                  Icons.camera_alt_outlined,
+                                  size: 40,
                                 ),
                               )
-                              .toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              selectedCommunity = val;
-                            });
-                          },
-                        );
-                      },
-                      error: (error, stackTrace) => ErrorText(
-                            error: error.toString(),
-                          ),
-                      loading: () => Loader(
-                            color: Colors.red,
-                          )),
+                            : Image.file(
+                                bannerFile!,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

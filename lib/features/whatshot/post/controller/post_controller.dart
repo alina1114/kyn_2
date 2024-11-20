@@ -53,121 +53,64 @@ class PostController extends StateNotifier<bool> {
         _storageRepository = storageRepository,
         super(false);
 
-  void shareTextPost({
+  void sharePost({
     required BuildContext context,
     required String title,
-    required Community selectedCommunity,
-    required String description,
+    String? description,
+    File? file,
   }) async {
     state = true;
     String postId = const Uuid().v1();
     final user = _ref.read(userProvider)!;
 
+    // If there is an image file, upload it and use the returned URL
+    String? imageUrl;
+    if (file != null) {
+      final imageRes = await _storageRepository.storeFile(
+        path: 'posts/',
+        id: postId,
+        file: file,
+      );
+
+      final result = await imageRes.fold(
+        (l) {
+          showSnackBar(context, l.message);
+          state = false;
+          return null;
+        },
+        (r) => r,
+      );
+      if (result == null) return; // Stop execution if upload failed
+      imageUrl = result;
+    }
+
+    // Create the post object
     final Post post = Post(
       id: postId,
       title: title,
-      communityName: selectedCommunity.name,
-      communityProfilePic: selectedCommunity.avatar,
+
       upvotes: [],
       downvotes: [],
       commentCount: 0,
       username: user.name,
       uid: user.uid,
-      type: 'text',
       createdAt: DateTime.now(),
       awards: [],
       description: description,
+      link: imageUrl, // This will be null for text posts
     );
 
+    // Add the post to the repository
     final res = await _postRepository.addPost(post);
-    _ref
-        .read(userProfileControllerProvider.notifier)
-        .updateUserKarma(UserKarma.textPost);
+
+    // Update user karma and handle result
+    _ref.read(userProfileControllerProvider.notifier).updateUserKarma(
+        file != null ? UserKarma.imagePost : UserKarma.textPost);
+
     state = false;
     res.fold((l) => showSnackBar(context, l.message), (r) {
       showSnackBar(context, 'Posted successfully!');
       Navigator.of(context).pop();
-    });
-  }
-
-  void shareLinkPost({
-    required BuildContext context,
-    required String title,
-    required Community selectedCommunity,
-    required String link,
-  }) async {
-    state = true;
-    String postId = const Uuid().v1();
-    final user = _ref.read(userProvider)!;
-
-    final Post post = Post(
-      id: postId,
-      title: title,
-      communityName: selectedCommunity.name,
-      communityProfilePic: selectedCommunity.avatar,
-      upvotes: [],
-      downvotes: [],
-      commentCount: 0,
-      username: user.name,
-      uid: user.uid,
-      type: 'link',
-      createdAt: DateTime.now(),
-      awards: [],
-      link: link,
-    );
-
-    final res = await _postRepository.addPost(post);
-    _ref
-        .read(userProfileControllerProvider.notifier)
-        .updateUserKarma(UserKarma.linkPost);
-    state = false;
-    res.fold((l) => showSnackBar(context, l.message), (r) {
-      showSnackBar(context, 'Posted successfully!');
-      Navigator.of(context).pop();
-    });
-  }
-
-  void shareImagePost({
-    required BuildContext context,
-    required String title,
-    required Community selectedCommunity,
-    required File? file,
-  }) async {
-    state = true;
-    String postId = const Uuid().v1();
-    final user = _ref.read(userProvider)!;
-    final imageRes = await _storageRepository.storeFile(
-      path: 'posts/${selectedCommunity.name}',
-      id: postId,
-      file: file,
-    );
-
-    imageRes.fold((l) => showSnackBar(context, l.message), (r) async {
-      final Post post = Post(
-        id: postId,
-        title: title,
-        communityName: selectedCommunity.name,
-        communityProfilePic: selectedCommunity.avatar,
-        upvotes: [],
-        downvotes: [],
-        commentCount: 0,
-        username: user.name,
-        uid: user.uid,
-        type: 'image',
-        createdAt: DateTime.now(),
-        awards: [],
-        link: r,
-      );
-
-      final res = await _postRepository.addPost(post);
-      _ref
-          .read(userProfileControllerProvider.notifier)
-          .updateUserKarma(UserKarma.imagePost);
-      state = false;
-      res.fold((l) => showSnackBar(context, l.message), (r) {
-        showSnackBar(context, 'Posted successfully!');
-        Navigator.of(context).pop();
-      });
     });
   }
 

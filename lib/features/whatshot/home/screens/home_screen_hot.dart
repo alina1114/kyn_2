@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kyn_2/features/whatshot/feed/feed_screen.dart';
 import 'package:kyn_2/features/whatshot/home/delegates/search_community_delegate.dart';
-import 'package:kyn_2/features/whatshot/home/drawers/community_list_drawer.dart';
 
 class WhatshotHomeScreen extends ConsumerWidget {
   const WhatshotHomeScreen({
@@ -28,12 +27,6 @@ class WhatshotHomeScreen extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        leading: Builder(builder: (context) {
-          return IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => displayDrawer(context),
-          );
-        }),
         actions: [
           IconButton(
             onPressed: () {
@@ -44,7 +37,6 @@ class WhatshotHomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      drawer: const CommunityListDrawer(),
       body: const FeedScreen(),
     );
   }

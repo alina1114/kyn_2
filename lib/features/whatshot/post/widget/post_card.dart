@@ -17,6 +17,7 @@ import 'package:kyn_2/models/post_model.dart';
 
 class PostCard extends ConsumerWidget {
   final Post post;
+
   const PostCard({
     super.key,
     required this.post,
@@ -36,13 +37,14 @@ class PostCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isTypeImage = post.type == 'image';
-    final isTypeText = post.type == 'text';
-    final isTypeLink = post.type == 'link';
     final user = ref.watch(userProvider)!;
     final isGuest = !user.isAuthenticated;
-
     final currentTheme = ref.watch(themeNotifierProvider);
+
+    // Check if there is a link for the image or if the description is provided
+    final hasImage = post.link != null && post.link!.isNotEmpty;
+    final hasDescription =
+        post.description != null && post.description!.isNotEmpty;
 
     return Column(
       children: [
@@ -69,18 +71,17 @@ class PostCard extends ConsumerWidget {
                             children: [
                               Row(
                                 children: [
-                                  GestureDetector(
-                                    onTap: () => Navigator.of(context).push(
-                                        CommunityScreen.route(
-                                            post.communityName)),
+                                  GestureDetector(onTap: () => {}
+                                      /*Navigator.of(context).push(
+                                        CommunityScreen.route(post.communityName)),
                                     child: CircleAvatar(
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
+                                      backgroundImage: CachedNetworkImageProvider(
                                         post.communityProfilePic,
                                       ),
                                       radius: 16,
                                     ),
-                                  ),
+                                    */
+                                      ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),
                                     child: Column(
@@ -88,7 +89,7 @@ class PostCard extends ConsumerWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'r/${post.communityName}',
+                                          'r/',
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -129,7 +130,8 @@ class PostCard extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          if (isTypeImage)
+                          // If the post contains an image
+                          if (hasImage)
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.35,
                               width: double.infinity,
@@ -138,17 +140,8 @@ class PostCard extends ConsumerWidget {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                          if (isTypeLink)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 18),
-                              child: AnyLinkPreview(
-                                displayDirection:
-                                    UIDirection.uiDirectionHorizontal,
-                                link: post.link!,
-                              ),
-                            ),
-                          if (isTypeText)
+                          // If the post contains a description
+                          if (hasDescription)
                             Container(
                               alignment: Alignment.bottomLeft,
                               padding:
@@ -211,6 +204,7 @@ class PostCard extends ConsumerWidget {
                                   ),
                                 ],
                               ),
+                              /*
                               ref
                                   .watch(getCommunityByNameProvider(
                                       post.communityName))
@@ -233,6 +227,7 @@ class PostCard extends ConsumerWidget {
                                       loading: () => Loader(
                                             color: Colors.red,
                                           )),
+                                          */
                             ],
                           ),
                         ],
